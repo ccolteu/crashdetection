@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.randmcnally.crashdetection">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- This permission is needed for automatic drive detection by Zendrive. -->
+    <uses-permission android:name= "com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+
+    <!-- This permission is needed so that Zendrive can track drives completely. This prevents Android from shutting down phone CPU in the middle of a drive. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application android:allowBackup="true"
+                 android:icon="@mipmap/ic_launcher"
+                 android:label="@string/app_name"
+                 android:supportsRtl="true"
+                 android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".AccidentActivity"/>
+
+        <service android:name="com.zendrive.sdk.services.UserActivityService" />
+        <service android:name="com.zendrive.sdk.services.ZendriveService" />
+        <receiver android:name="com.zendrive.sdk.receiver.WakeupReceiver"
+                  android:label="WakeupReceiver"></receiver>
+
+        <service android:name=".services.CrashDetectionZendriveIntentService" />
+
+    </application>
+
+</manifest>
