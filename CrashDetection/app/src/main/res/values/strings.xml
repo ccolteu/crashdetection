@@ -6,4 +6,7 @@
     <string name="cancel_ok">Cancel, I\'m okay.</string>
     <string name="calling_for_help_in">calling for help in</string>
     <string name="seconds">seconds</string>
+    <string name="glad_you_ok">Glad to hear you\'re okay!</string>
+    <string name="no_false_alerts_sent">No false alerts were sent.</string>
+    <string name="close">Close</string>
 </resources>

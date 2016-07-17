@@ -24,7 +24,7 @@ public class AnimUtils {
 
     }
 
-    public void startCountdownAnimation(final Circle countdownCircleView) {
+    public CircleAngleAnimation startCountdownAnimation(final Circle countdownCircleView) {
 
         CircleAngleAnimation animation = new CircleAngleAnimation(countdownCircleView, 360);
         animation.setDuration(5000);
@@ -45,5 +45,7 @@ public class AnimUtils {
             }
         });
         countdownCircleView.startAnimation(animation);
+
+        return animation;
     }
 }
