@@ -24,10 +24,10 @@ public class AnimUtils {
 
     }
 
-    public CircleAngleAnimation startCountdownAnimation(final Circle countdownCircleView) {
+    public CircleAngleAnimation startCountdownAnimation(final Circle countdownCircleView, int durationSeconds) {
 
         CircleAngleAnimation animation = new CircleAngleAnimation(countdownCircleView, 360);
-        animation.setDuration(5000);
+        animation.setDuration(durationSeconds * 1000);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {

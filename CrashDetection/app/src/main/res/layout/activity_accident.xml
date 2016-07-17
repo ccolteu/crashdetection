@@ -84,7 +84,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:gravity="center"
-                        android:text="20"
+                        tools:text="20"
                         android:textStyle="bold"
                         android:textColor="@android:color/white"
                         android:textSize="100sp"
@@ -162,7 +162,7 @@
                         android:layout_weight="10"/>
 
                     <TextView
-                        android:id="@+id/call_person"
+                        android:id="@+id/call_contact"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="30"
