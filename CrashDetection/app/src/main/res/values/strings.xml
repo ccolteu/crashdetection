@@ -9,4 +9,29 @@
     <string name="glad_you_ok">Glad to hear you\'re okay!</string>
     <string name="no_false_alerts_sent">No false alerts were sent.</string>
     <string name="close">Close</string>
+    <string name="liability_waiver">Liability Waiver</string>
+    <string name="do_not_show_again">Don\'t show again</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
+    <string name="liability">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vitae lorem lacinia, rutrum
+        nulla quis, semper diam. Suspendisse accumsan tristique vulputate. Praesent commodo elit sit amet dictum maximus.
+        Integer elit nisl, elementum at suscipit vitae, aliquam nec purus. Integer arcu quam, condimentum ultrices pellentesque
+        vitae, pulvinar vitae dolor. Vestibulum rutrum ipsum eu lorem iaculis tempus. Nunc eleifend tortor eu velit viverra
+        vestibulum. Quisque placerat blandit gravida. Donec pharetra elit non felis dapibus consectetur. Cras nulla est, cursus
+        sed ex aliquet, mollis luctus quam. Vestibulum purus nulla, consectetur quis neque eget, iaculis convallis quam. Donec
+        eu leo fringilla, pretium massa at, dapibus velit. Ut ac felis auctor quam consectetur feugiat. Etiam maximus auctor
+        feugiat. Etiam lorem erat, ornare eu erat vel, consectetur dignissim dolor. Nam volutpat odio sit amet lectus gravida
+        pharetra.\n\nMauris vehicula nulla vel elit scelerisque, at cursus sem viverra. Sed efficitur congue dolor sed feugiat.
+        Suspendisse luctus gravida nunc, eget auctor odio eleifend in. Integer ullamcorper eros eget sodales rhoncus. Vivamus
+        accumsan fermentum varius. Nullam massa quam, porta id interdum nec, ultricies eu tellus. Morbi non aliquam libero.
+        Pellentesque sed imperdiet orci. Nunc ultricies dui felis, quis faucibus lacus auctor in. Maecenas ac lacus et nunc
+        sagittis venenatis. Quisque lobortis eu mi sed viverra. Donec cursus vitae dui quis bibendum. Proin sed molestie lorem,
+        at fermentum diam. Quisque vestibulum iaculis velit at ullamcorper.\n\nQuisque arcu nisi, congue et mi sit amet, dictum
+        pharetra urna. Nam facilisis est et hendrerit rutrum. Nullam rutrum velit in est pharetra mattis. Aliquam efficitur
+        arcu eu tortor facilisis, vel vestibulum elit pharetra. Phasellus non magna id leo rhoncus egestas. Fusce fringilla
+        elit ac risus bibendum faucibus. Sed eros purus, consectetur quis mollis ut, eleifend at justo. Nullam luctus in dolor
+        sit amet volutpat. Donec dapibus imperdiet mauris ac aliquam. Etiam efficitur lorem ut leo tempus sollicitudin.
+        Suspendisse feugiat eleifend ante, at faucibus ipsum. Proin quis varius quam. Pellentesque congue sapien eu tellus
+        tincidunt fermentum. Sed in sem a ante ullamcorper dapibus a non libero. Donec sodales in nulla nec egestas. Cras
+        scelerisque purus a ex tempus porta.\n\nAliquam commodo fermentum erat, eget sodales mi mattis vitae. Duis non diam ultricies justo porttitor ullamcorper. Nullam consequat mauris ut fermentum sagittis. Nulla dignissim lorem quis mi tristique dapibus. Curabitur bibendum turpis ex, sed rhoncus massa laoreet sit amet. In sit amet cursus quam, sed pretium mauris. Proin augue felis, egestas et efficitur a, tincidunt a nibh.\n\nVestibulum eu tempus felis. Donec neque lectus, accumsan et rhoncus id, rutrum sit amet ex. Suspendisse malesuada, nulla facilisis porttitor sodales, nibh neque aliquam libero, eu fringilla augue est a ligula. Curabitur efficitur enim sed lobortis tempus. Donec tortor ligula, pellentesque volutpat dictum at, pellentesque pellentesque libero. Cras ac risus sit amet ipsum vehicula molestie venenatis sed lectus. Proin euismod tincidunt eros, in rhoncus arcu ornare nec. Sed non turpis in risus molestie tincidunt tempor nec nulla. Donec lectus neque, blandit id risus eget, placerat interdum risus. Sed maximus nulla metus. Ut lectus elit, pretium nec laoreet ac, suscipit vitae ligula.\n\n</string>
 </resources>
