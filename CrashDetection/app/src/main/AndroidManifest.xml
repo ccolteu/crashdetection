@@ -31,7 +31,7 @@
         <service android:name="com.zendrive.sdk.services.UserActivityService" />
         <service android:name="com.zendrive.sdk.services.ZendriveService" />
         <receiver android:name="com.zendrive.sdk.receiver.WakeupReceiver"
-                  android:label="WakeupReceiver"></receiver>
+                  android:label="WakeupReceiver" />
 
         <service android:name=".services.CrashDetectionZendriveIntentService" />
 

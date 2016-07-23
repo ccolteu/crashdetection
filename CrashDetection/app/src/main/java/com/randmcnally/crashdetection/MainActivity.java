@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupZendrive() {
+        Log.e("toto", "Zendrive setup");
 
         ZendriveDriverAttributes driverAttributes = new ZendriveDriverAttributes();
         driverAttributes.setFirstName("Homer");
@@ -56,40 +57,20 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onCompletion(ZendriveOperationResult result) {
                         if (result.isSuccess()) {
-                            triggerMockAccident();
+                            startDrive();
                         } else {
+
                         }
                     }
                 }
         );
-
-        triggerMockAccident2();
     }
 
-    private void triggerMockAccident() {
-        //Zendrive.setZendriveDriveDetectionMode(ZendriveDriveDetectionMode.AUTO_OFF);
+    private void startDrive() {
         ZendriveOperationResult result = Zendrive.startDrive(TRACKING_ID);
         Log.e("toto", "start drive success ? " + result.isSuccess());
         Log.e("toto", "error code: " + result.getErrorCode());
         Log.e("toto", "error message: " + result.getErrorMessage());
-        final Context ctx = this.getApplicationContext();
-        new android.os.Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ZendriveOperationResult result = Zendrive.triggerMockAccident(ctx, ZendriveAccidentConfidence.HIGH);
-                Log.e("toto", "mock accident success ? " + result.isSuccess());
-                Log.e("toto", "error code: " + result.getErrorCode());
-                Log.e("toto", "error message: " + result.getErrorMessage());
-            }
-        }, 2000);
-
-//        result = Zendrive.stopDrive();
-//        Log.e("toto", "stop drive success ? " + result.isSuccess());
-//        Log.e("toto", "error code: " + result.getErrorCode());
-//        Log.e("toto", "error message: " + result.getErrorMessage());
     }
 
-    private void triggerMockAccident2() {
-        startActivity(new Intent(this, AccidentActivity.class));
-    }
 }
