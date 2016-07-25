@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#8e221a</color>
     <color name="colorAccent">#333333</color>
     <color name="pink">#e7dfd7</color>
+    <color name="settings_text_gray">#4a4a4a</color>
+    <color name="separator_gray">#e5e5e5</color>
 </resources>

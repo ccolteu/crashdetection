@@ -1,11 +1,15 @@
 package com.randmcnally.crashdetection;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import com.randmcnally.crashdetection.interfaces.ScrollViewListener;
 import com.randmcnally.crashdetection.widgets.ScrollViewExt;
@@ -14,6 +18,7 @@ public class LiabilityActivity extends AppCompatActivity implements ScrollViewLi
 
     private View mButtonsView;
     private LiabilityActivity activity;
+    private boolean mDontShowAgain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +38,23 @@ public class LiabilityActivity extends AppCompatActivity implements ScrollViewLi
         findViewById(R.id.accept).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(activity, MainActivity.class));
+                startActivity(new Intent(activity, SettingsActivity.class));
                 finish();
             }
         });
+
+        ((CheckBox)findViewById(R.id.do_not_show_again_checkbox)).setOnCheckedChangeListener(new CompoundButton
+                .OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                saveDontShowAgainValue(b);
+            }
+        });
+
+        if (loadDontShowAgainValue()) {
+            startActivity(new Intent(activity, SettingsActivity.class));
+            finish();
+        }
     }
 
     @Override
@@ -69,5 +87,20 @@ public class LiabilityActivity extends AppCompatActivity implements ScrollViewLi
             }
         });
         mButtonsView.startAnimation(fadeInAnimation);
+    }
+
+    private void saveDontShowAgainValue(boolean value) {
+        SharedPreferences sharedPref = activity.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(getString(R.string.saved_liability_dont_show), value);
+        editor.commit();
+    }
+
+    private boolean loadDontShowAgainValue() {
+        SharedPreferences sharedPref = activity.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        boolean defaultValue = getResources().getBoolean(R.bool.liability_dont_show_default);
+        return sharedPref.getBoolean(getResources().getString(R.string.saved_liability_dont_show), defaultValue);
     }
 }

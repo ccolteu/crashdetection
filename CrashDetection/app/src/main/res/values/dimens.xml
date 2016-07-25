@@ -3,4 +3,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="count_down_circle_size">220dp</dimen>
+    <dimen name="settings_padding_left">64dp</dimen>
+    <dimen name="settings_line_1">24sp</dimen>
+    <dimen name="settings_line_2">18sp</dimen>
+    <dimen name="settings_selection">24sp</dimen>
 </resources>
