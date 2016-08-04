@@ -57,8 +57,6 @@ public class SettingsActivity extends AppCompatActivity {
         mAccidentCallSelectionTextView = (TextView)findViewById(R.id.accident_call_selection);
         mCrashNotificationSwitch = (Switch) findViewById(R.id.crash_notification_selection);
 
-        // TODO persist selected values and load them from Shared Preferences
-
         findViewById(R.id.test_crash_detection).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
