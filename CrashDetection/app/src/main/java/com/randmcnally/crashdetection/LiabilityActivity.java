@@ -27,7 +27,7 @@ public class LiabilityActivity extends AppCompatActivity implements ScrollViewLi
         getSupportActionBar().setTitle(getResources().getString(R.string.liability_waiver));
         setContentView(R.layout.activity_liability);
         mButtonsView = findViewById(R.id.buttons);
-        ScrollViewExt scrollView = (ScrollViewExt) findViewById(R.id.scroll_view);
+        final ScrollViewExt scrollView = (ScrollViewExt) findViewById(R.id.scroll_view);
         scrollView.setScrollViewListener(this);
         findViewById(R.id.reject).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +55,13 @@ public class LiabilityActivity extends AppCompatActivity implements ScrollViewLi
             startActivity(new Intent(activity, SettingsActivity.class));
             finish();
         }
+
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
     }
 
     @Override

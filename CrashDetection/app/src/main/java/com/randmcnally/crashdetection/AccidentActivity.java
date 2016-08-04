@@ -92,11 +92,13 @@ public class AccidentActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (mImOkAlertDialog != null) {
                     mImOkAlertDialog.dismiss();
+                    finish();
                 }
             }
         });
         dialogBuilder.setView(dialogView);
         mImOkAlertDialog = dialogBuilder.create();
+        mImOkAlertDialog.setCancelable(false);
         mImOkAlertDialog.show();
     }
 

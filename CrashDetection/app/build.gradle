@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.randmcnally.crashdetection"
-        minSdkVersion 22
+        minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -35,4 +35,5 @@ dependencies {
     compile ('com.zendrive.sdk.android:ZendriveSDK:3.2.1@aar') {
         transitive = true
     }
+    compile 'org.greenrobot:eventbus:3.0.0'
 }

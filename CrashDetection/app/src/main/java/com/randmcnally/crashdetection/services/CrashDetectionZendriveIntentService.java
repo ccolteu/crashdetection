@@ -4,17 +4,20 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.randmcnally.crashdetection.AccidentActivity;
+import com.randmcnally.crashdetection.event.DriveResumeEvent;
+import com.randmcnally.crashdetection.event.DriveStartEvent;
+import com.randmcnally.crashdetection.event.LocationSettingsChangeEvent;
 import com.zendrive.sdk.AccidentInfo;
 import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
-import com.zendrive.sdk.Zendrive;
-import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveIntentService;
 import com.zendrive.sdk.ZendriveLocationSettingsResult;
-import com.zendrive.sdk.ZendriveOperationResult;
+import org.greenrobot.eventbus.EventBus;
 
 public class CrashDetectionZendriveIntentService extends ZendriveIntentService {
+
+    private static final String TAG = "ZendriveIntentService";
 
     public CrashDetectionZendriveIntentService() {
         super("MyZendriveIntentService");
@@ -22,44 +25,44 @@ public class CrashDetectionZendriveIntentService extends ZendriveIntentService {
 
     @Override
     public void onDriveStart(DriveStartInfo startInfo) {
-        Log.e("toto", "onDriveStart");
-
-        ZendriveOperationResult result = Zendrive.triggerMockAccident(this, ZendriveAccidentConfidence.HIGH);
-        Log.e("toto", "mock accident success ? " + result.isSuccess());
-        Log.e("toto", "error code: " + result.getErrorCode());
-        Log.e("toto", "error message: " + result.getErrorMessage());
+        Log.i(TAG, "onDriveStart");
+        EventBus.getDefault().post(new DriveStartEvent());
     }
 
     @Override
     public void onDriveResume(DriveResumeInfo resumeInfo) {
-        Log.e("toto", "onDriveResume");
-
-        ZendriveOperationResult result = Zendrive.triggerMockAccident(this, ZendriveAccidentConfidence.HIGH);
-        Log.e("toto", "mock accident success ? " + result.isSuccess());
-        Log.e("toto", "error code: " + result.getErrorCode());
-        Log.e("toto", "error message: " + result.getErrorMessage());
+        Log.i(TAG, "onDriveResume");
+        EventBus.getDefault().post(new DriveResumeEvent());
     }
 
     @Override
     public void onDriveEnd(DriveInfo driveInfo) {
-        Log.e("toto", "onDriveEnd");
+        Log.i(TAG, "onDriveEnd");
     }
 
     @Override
     public void onAccident(AccidentInfo accidentInfo) {
-        Log.e("toto", "onAccident");
-
-        startActivity(new Intent(this, AccidentActivity.class));
+        Log.i(TAG, "onAccident");
+        Log.i(TAG, "accident id = " + accidentInfo.accidentId);
+        Log.i(TAG, "drive id    = " + accidentInfo.driveId);
+        Log.i(TAG, "session id  = " + accidentInfo.sessionId);
+        Log.i(TAG, "tracking id = " + accidentInfo.trackingId);
+        Log.i(TAG, "confidence  = " + accidentInfo.confidence.getValue());
+        Log.i(TAG, "lat/lon     = " + accidentInfo.location.latitude + "/" + accidentInfo.location.longitude);
+        Log.i(TAG, "timestamp   = " + accidentInfo.timestampMillis);
+        Intent intent = new Intent(this, AccidentActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     @Override
     public void onLocationSettingsChange(ZendriveLocationSettingsResult locationSettingsResult) {
-        Log.e("toto", "onLocationSettingsChange");
+        Log.i(TAG, "onLocationSettingsChange");
+        EventBus.getDefault().post(new LocationSettingsChangeEvent());
     }
 
     @Override
     public void onLocationPermissionsChange(boolean granted) {
-        Log.e("toto", "onLocationPermissionsChange");
+        Log.i(TAG, "onLocationPermissionsChange");
     }
-
 }
