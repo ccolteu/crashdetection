@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                xmlns:tools="http://schemas.android.com/tools">
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="30dp">
+
+        <RadioButton
+            android:id="@+id/radio_emergency_contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawablePadding="20dp"
+            android:drawableLeft="?android:attr/listChoiceIndicatorSingle"
+            android:text="@string/emergency_contact_first_letters_caps"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp"
+            android:drawableTint="@color/colorPrimary"
+            tools:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/radio_nine_one_one"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawablePadding="20dp"
+            android:drawableLeft="?android:attr/listChoiceIndicatorSingle"
+            android:drawableTint="@color/colorPrimary"
+            android:text="@string/nine_one_one"
+            android:textSize="16sp"/>
+    </RadioGroup>
+</RelativeLayout>

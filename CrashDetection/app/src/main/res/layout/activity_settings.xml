@@ -127,7 +127,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:gravity="right"
-                    android:layout_marginRight="35dp"
+                    android:layout_marginRight="45dp"
                     tools:text="Samsung Galaxy S7"
                     android:textSize="@dimen/settings_selection"
                     android:textColor="@color/settings_text_gray"/>
@@ -199,7 +199,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:gravity="right"
-                    android:layout_marginRight="35dp"
+                    android:layout_marginRight="45dp"
                     tools:text="My Wife"
                     android:textSize="@dimen/settings_selection"
                     android:textColor="@color/settings_text_gray"/>
@@ -271,7 +271,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:gravity="right"
-                    android:layout_marginRight="35dp"
+                    android:layout_marginRight="45dp"
                     tools:text="Emergency Contact"
                     android:textSize="@dimen/settings_selection"
                     android:textColor="@color/settings_text_gray"/>

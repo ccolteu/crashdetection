@@ -3,6 +3,9 @@ package com.randmcnally.crashdetection;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
@@ -27,7 +30,7 @@ import com.zendrive.sdk.ZendriveOperationResult;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements PriorityDialogFragment.PriorityDialogListener {
 
     private static final String TAG = "SettingsActivity";
     public static final String MOCK_TRACKING_ID = SettingsActivity.class.getSimpleName() + ".MOCK_TRACKING_ID";
@@ -57,6 +60,34 @@ public class SettingsActivity extends AppCompatActivity {
         mAccidentCallSelectionTextView = (TextView)findViewById(R.id.accident_call_selection);
         mCrashNotificationSwitch = (SwitchCompat) findViewById(R.id.crash_notification_selection);
 
+        findViewById(R.id.crash_notification).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCrashNotificationSwitch.toggle();
+            }
+        });
+
+        findViewById(R.id.paired_phone).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO launch native BT pair/search dialog
+            }
+        });
+
+        findViewById(R.id.emergency_contact).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO launch contact search page
+            }
+        });
+
+        findViewById(R.id.accident_call).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAccidentCallChoiceDialog();
+            }
+        });
+
         findViewById(R.id.test_crash_detection).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,27 +110,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.paired_phone).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO launch native BT pair/search dialog
-            }
-        });
-
-        findViewById(R.id.emergency_contact).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO launch contact search page
-            }
-        });
-
-        findViewById(R.id.accident_call).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO open custom dialog
-            }
-        });
-
         mCrashNotificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -112,7 +122,10 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        // initial values
         mCrashNotificationSwitch.setChecked(loadCrashNotificationValue());
+        mAccidentCallSelectionTextView.setText(loadPriorityValue()?getResources().getString(R.string
+                .emergency_contact_first_letters_caps):getResources().getString(R.string.nine_one_one));
 
         if (mCrashNotificationSwitch.isChecked()) {
             setupZendrive();
@@ -224,6 +237,21 @@ public class SettingsActivity extends AppCompatActivity {
         return sharedPref.getBoolean(getResources().getString(R.string.saved_crash_notification_enabled), defaultValue);
     }
 
+    private void savePriorityValue(boolean value) {
+        SharedPreferences sharedPref = activity.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(getString(R.string.saved_priority_is_contact), value);
+        editor.commit();
+    }
+
+    private boolean loadPriorityValue() {
+        SharedPreferences sharedPref = activity.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        boolean defaultValue = getResources().getBoolean(R.bool.priority_is_contact_default);
+        return sharedPref.getBoolean(getResources().getString(R.string.saved_priority_is_contact), defaultValue);
+    }
+
     private void handleError(ZendriveOperationResult result) {
         Log.e(TAG, "error code: " + result.getErrorCode());
         Log.e(TAG, "error message: " + result.getErrorMessage());
@@ -242,5 +270,22 @@ public class SettingsActivity extends AppCompatActivity {
         } else if (result.getErrorCode() == ZendriveErrorCode.LOCATION_ACCURACY_NOT_AVAILABLE) {
             Toast.makeText(activity, "Error: Location accuracy not available.", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public static final String PRIORITY_CONTACT_KEY = SettingsActivity.class.getSimpleName() + ".PRIORITY_CONTACT_KEY";
+    private void showAccidentCallChoiceDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        PriorityDialogFragment dialogFragment = new PriorityDialogFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(PRIORITY_CONTACT_KEY, loadPriorityValue());
+        dialogFragment.setArguments(args);
+        dialogFragment.show(fm, "accident_call_dialog");
+    }
+
+    @Override
+    public void onContactSelected(AlertDialog dialog, boolean isContact) {
+        savePriorityValue(isContact);
+        mAccidentCallSelectionTextView.setText(loadPriorityValue()?getResources().getString(R.string
+                .emergency_contact_first_letters_caps):getResources().getString(R.string.nine_one_one));
     }
 }

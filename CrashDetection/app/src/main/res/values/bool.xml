@@ -2,4 +2,5 @@
 <resources>
     <bool name="liability_dont_show_default">false</bool>
     <bool name="crash_notification_enabled_default">false</bool>
+    <bool name="priority_is_contact_default">false</bool>
 </resources>
