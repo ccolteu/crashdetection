@@ -46,7 +46,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="130"
-            android:background="@color/colorPrimary">
+            android:background="@color/red">
 
             <TextView
                 android:id="@+id/calling_help_title"

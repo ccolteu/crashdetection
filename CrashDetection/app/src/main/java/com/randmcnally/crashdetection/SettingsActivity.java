@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +39,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private SettingsActivity activity;
     private TextView mPairedPhoneSelectionTextView, mEmergencyContactSelectionTextView, mAccidentCallSelectionTextView;
-    private Switch mCrashNotificationSwitch;
+    private SwitchCompat mCrashNotificationSwitch;
 
     private boolean setupComplete;
     private boolean isMockDriving;
@@ -55,7 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
         mPairedPhoneSelectionTextView = (TextView)findViewById(R.id.paired_phone_selection);
         mEmergencyContactSelectionTextView = (TextView)findViewById(R.id.emergency_contact_selection);
         mAccidentCallSelectionTextView = (TextView)findViewById(R.id.accident_call_selection);
-        mCrashNotificationSwitch = (Switch) findViewById(R.id.crash_notification_selection);
+        mCrashNotificationSwitch = (SwitchCompat) findViewById(R.id.crash_notification_selection);
 
         findViewById(R.id.test_crash_detection).setOnClickListener(new View.OnClickListener() {
             @Override
