@@ -21,6 +21,7 @@ import com.zendrive.sdk.ZendriveAccidentDetectionMode;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveDriverAttributes;
+import com.zendrive.sdk.ZendriveErrorCode;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 import org.greenrobot.eventbus.EventBus;
@@ -29,21 +30,20 @@ import org.greenrobot.eventbus.Subscribe;
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "SettingsActivity";
+    public static final String MOCK_TRACKING_ID = SettingsActivity.class.getSimpleName() + ".MOCK_TRACKING_ID";
 
     // SDK Key
     private String SDK_KEY = "U2PHmA2cwLGvt1DqEn1OnB96GMghZAXa";
     // ID for the driver currently using the application. Each driver using the application needs a unique ID.
     private String DRIVER_ID = "abc";
-    // The TRACKING_ID can be used to find Zendrive trips with this ID in the Zendrive Analytics API.
-    private String TRACKING_ID = "123";
 
     private SettingsActivity activity;
     private TextView mPairedPhoneSelectionTextView, mEmergencyContactSelectionTextView, mAccidentCallSelectionTextView;
     private Switch mCrashNotificationSwitch;
 
     private boolean setupComplete;
+    private boolean isMockDriving;
     private boolean triggerMockAccident;
-    private boolean isDriving;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +64,13 @@ public class SettingsActivity extends AppCompatActivity {
                     Toast.makeText(activity, "enable Crash Notification first", Toast.LENGTH_LONG).show();
                 } else {
                     if (setupComplete) {
-                        if (isDriving) {
+                        if (isMockDriving) {
                             Toast.makeText(activity, "mock accident", Toast.LENGTH_LONG).show();
                             triggerAccident();
                         } else {
                             Toast.makeText(activity, "trigger start drive, then mock accident", Toast.LENGTH_LONG).show();
                             triggerMockAccident = true;
-                            startDrive();
+                            startMockDrive();
                         }
                     } else {
                         Toast.makeText(activity, "setup in progress, please try again later", Toast.LENGTH_LONG).show();
@@ -117,7 +117,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (mCrashNotificationSwitch.isChecked()) {
             setupZendrive();
         }
-
     }
 
     private void setupZendrive() {
@@ -143,17 +142,19 @@ public class SettingsActivity extends AppCompatActivity {
                     public void onCompletion(ZendriveOperationResult result) {
                         Log.i(TAG, "Zendrive setup success ? " + result.isSuccess());
                         setupComplete = result.isSuccess();
+                        if (!result.isSuccess()) {
+                            handleError(result);
+                        }
                     }
                 }
         );
     }
 
-    private void startDrive() {
-        ZendriveOperationResult result = Zendrive.startDrive(TRACKING_ID);
-        Log.i(TAG, "startDrive success ? " + result.isSuccess());
+    private void startMockDrive() {
+        ZendriveOperationResult result = Zendrive.startDrive(MOCK_TRACKING_ID);
+        Log.i(TAG, "mock startDrive success ? " + result.isSuccess());
         if (!result.isSuccess()) {
-            Log.e(TAG, "startDrive error code: " + result.getErrorCode());
-            Log.e(TAG, "startDrive error message: " + result.getErrorMessage());
+            handleError(result);
         }
     }
 
@@ -169,34 +170,42 @@ public class SettingsActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    @Override
+    protected void onDestroy() {
+        Zendrive.stopDrive(MOCK_TRACKING_ID);
+        super.onDestroy();
+    }
+
     @Subscribe
     public void onDriveStartEvent(DriveStartEvent event) {
-        isDriving = true;
-        if (triggerMockAccident) {
-            triggerMockAccident = false;
-            triggerAccident();
+        if (event.trackingId.equalsIgnoreCase(MOCK_TRACKING_ID)) {
+            isMockDriving = true;
+            if (triggerMockAccident) {
+                triggerMockAccident = false;
+                triggerAccident();
+            }
         }
     }
 
     @Subscribe
     public void onDriveResumeEvent(DriveResumeEvent event) {
-        isDriving = true;
-        if (triggerMockAccident) {
-            triggerMockAccident = false;
-            triggerAccident();
+        if (event.trackingId.equalsIgnoreCase(MOCK_TRACKING_ID)) {
+            isMockDriving = true;
+            if (triggerMockAccident) {
+                triggerMockAccident = false;
+                triggerAccident();
+            }
         }
     }
 
     @Subscribe
     public void onLocationSettingsChangeEvent(LocationSettingsChangeEvent event) {
-        isDriving = true;
     }
 
     private void triggerAccident() {
         ZendriveOperationResult result = Zendrive.triggerMockAccident(this, ZendriveAccidentConfidence.HIGH);
         if (!result.isSuccess()) {
-            Log.e(TAG, "triggerMockAccident error code: " + result.getErrorCode());
-            Log.e(TAG, "triggerMockAccident error message: " + result.getErrorMessage());
+            handleError(result);
         }
     }
 
@@ -213,5 +222,25 @@ public class SettingsActivity extends AppCompatActivity {
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         boolean defaultValue = getResources().getBoolean(R.bool.crash_notification_enabled_default);
         return sharedPref.getBoolean(getResources().getString(R.string.saved_crash_notification_enabled), defaultValue);
+    }
+
+    private void handleError(ZendriveOperationResult result) {
+        Log.e(TAG, "error code: " + result.getErrorCode());
+        Log.e(TAG, "error message: " + result.getErrorMessage());
+        if (result.getErrorCode() == ZendriveErrorCode.NETWORK_NOT_AVAILABLE) {
+            Toast.makeText(activity, "Error: Network not available.", Toast.LENGTH_LONG).show();
+        } else if (result.getErrorCode() == ZendriveErrorCode.GOOGLE_PLAY_SERVICES_UNAVAILABLE) {
+            Toast.makeText(activity, "Error: Google Play services unavailable.", Toast.LENGTH_LONG).show();
+        } else if (result.getErrorCode() == ZendriveErrorCode.GOOGLE_PLAY_SERVICES_UPDATE_REQUIRED) {
+            Toast.makeText(activity, "Error: Google Play services update required.", Toast.LENGTH_LONG).show();
+        } else if (result.getErrorCode() == ZendriveErrorCode.ACCIDENT_DETECTION_NOT_AVAILABLE_FOR_APPLICATION) {
+            Toast.makeText(activity, "Error: Accident detection not available for application.", Toast.LENGTH_LONG).show();
+        } else if (result.getErrorCode() == ZendriveErrorCode.ACCIDENT_DETECTION_NOT_AVAILABLE_FOR_DEVICE) {
+            Toast.makeText(activity, "Error: Accident detection not available for device.", Toast.LENGTH_LONG).show();
+        } else if (result.getErrorCode() == ZendriveErrorCode.ANDROID_VERSION_NOT_SUPPORTED) {
+            Toast.makeText(activity, "Error: Android version not supported.", Toast.LENGTH_LONG).show();
+        } else if (result.getErrorCode() == ZendriveErrorCode.LOCATION_ACCURACY_NOT_AVAILABLE) {
+            Toast.makeText(activity, "Error: Location accuracy not available.", Toast.LENGTH_LONG).show();
+        }
     }
 }

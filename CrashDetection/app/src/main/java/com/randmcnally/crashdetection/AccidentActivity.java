@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.randmcnally.crashdetection.services.CrashDetectionZendriveIntentService;
 import com.randmcnally.crashdetection.utils.AnimUtils;
 import com.randmcnally.crashdetection.widgets.Circle;
 import com.randmcnally.crashdetection.widgets.CircleAngleAnimation;
@@ -25,6 +26,8 @@ public class AccidentActivity extends AppCompatActivity {
     private CountdownHandler mCountdownHandler;
     private int mCountdownSeconds;
     private TextView mCountdownSecondsTextView;
+
+    private boolean mIsMockAccident;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,11 @@ public class AccidentActivity extends AppCompatActivity {
                 call(CALL_CONTACT);
             }
         });
+
+        mIsMockAccident = false;
+        if (getIntent() != null) {
+            mIsMockAccident = getIntent().getBooleanExtra(CrashDetectionZendriveIntentService.IS_MOCK_ACCIDENT_KEY, false);
+        }
     }
 
     @Override

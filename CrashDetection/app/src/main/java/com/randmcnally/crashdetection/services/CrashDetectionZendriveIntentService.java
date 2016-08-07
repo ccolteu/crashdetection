@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.randmcnally.crashdetection.AccidentActivity;
+import com.randmcnally.crashdetection.SettingsActivity;
 import com.randmcnally.crashdetection.event.DriveResumeEvent;
 import com.randmcnally.crashdetection.event.DriveStartEvent;
 import com.randmcnally.crashdetection.event.LocationSettingsChangeEvent;
@@ -18,6 +19,8 @@ import org.greenrobot.eventbus.EventBus;
 public class CrashDetectionZendriveIntentService extends ZendriveIntentService {
 
     private static final String TAG = "ZendriveIntentService";
+    public static final String IS_MOCK_ACCIDENT_KEY = CrashDetectionZendriveIntentService.class.getSimpleName() +
+            ".IS_MOCK_ACCIDENT_KEY";
 
     public CrashDetectionZendriveIntentService() {
         super("MyZendriveIntentService");
@@ -25,33 +28,27 @@ public class CrashDetectionZendriveIntentService extends ZendriveIntentService {
 
     @Override
     public void onDriveStart(DriveStartInfo startInfo) {
-        Log.i(TAG, "onDriveStart");
-        EventBus.getDefault().post(new DriveStartEvent());
+        Log.i(TAG, "onDriveStart: " + startInfo.trackingId);
+        EventBus.getDefault().post(new DriveStartEvent.Builder().trackingId(startInfo.trackingId).build());
     }
 
     @Override
     public void onDriveResume(DriveResumeInfo resumeInfo) {
-        Log.i(TAG, "onDriveResume");
-        EventBus.getDefault().post(new DriveResumeEvent());
+        Log.i(TAG, "onDriveResume: " + resumeInfo.trackingId);
+        EventBus.getDefault().post(new DriveResumeEvent.Builder().trackingId(resumeInfo.trackingId).build());
     }
 
     @Override
     public void onDriveEnd(DriveInfo driveInfo) {
-        Log.i(TAG, "onDriveEnd");
+        Log.i(TAG, "onDriveEnd: " + driveInfo.driveId);
     }
 
     @Override
     public void onAccident(AccidentInfo accidentInfo) {
-        Log.i(TAG, "onAccident");
-        Log.i(TAG, "accident id = " + accidentInfo.accidentId);
-        Log.i(TAG, "drive id    = " + accidentInfo.driveId);
-        Log.i(TAG, "session id  = " + accidentInfo.sessionId);
-        Log.i(TAG, "tracking id = " + accidentInfo.trackingId);
-        Log.i(TAG, "confidence  = " + accidentInfo.confidence.getValue());
-        Log.i(TAG, "lat/lon     = " + accidentInfo.location.latitude + "/" + accidentInfo.location.longitude);
-        Log.i(TAG, "timestamp   = " + accidentInfo.timestampMillis);
+        Log.i(TAG, "onAccident: " + accidentInfo.trackingId);
         Intent intent = new Intent(this, AccidentActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(IS_MOCK_ACCIDENT_KEY, accidentInfo.trackingId.equalsIgnoreCase(SettingsActivity.MOCK_TRACKING_ID));
         startActivity(intent);
     }
 
