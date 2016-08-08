@@ -28,33 +28,33 @@ public class CrashDetectionZendriveIntentService extends ZendriveIntentService {
 
     @Override
     public void onDriveStart(DriveStartInfo startInfo) {
-        Log.i(TAG, "onDriveStart: " + startInfo.trackingId);
+        Log.i("toto", "onDriveStart: " + startInfo.trackingId);
         EventBus.getDefault().post(new DriveStartEvent.Builder().trackingId(startInfo.trackingId).build());
     }
 
     @Override
     public void onDriveResume(DriveResumeInfo resumeInfo) {
-        Log.i(TAG, "onDriveResume: " + resumeInfo.trackingId);
+        Log.i("toto", "onDriveResume: " + resumeInfo.trackingId);
         EventBus.getDefault().post(new DriveResumeEvent.Builder().trackingId(resumeInfo.trackingId).build());
     }
 
     @Override
     public void onDriveEnd(DriveInfo driveInfo) {
-        Log.i(TAG, "onDriveEnd: " + driveInfo.driveId);
+        Log.i("toto", "onDriveEnd: " + driveInfo.driveId);
     }
 
     @Override
     public void onAccident(AccidentInfo accidentInfo) {
-        Log.i(TAG, "onAccident: " + accidentInfo.trackingId);
+        Log.i("toto", "onAccident: " + accidentInfo.trackingId);
         Intent intent = new Intent(this, AccidentActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(IS_MOCK_ACCIDENT_KEY, accidentInfo.trackingId.equalsIgnoreCase(SettingsActivity.MOCK_TRACKING_ID));
+        intent.putExtra(IS_MOCK_ACCIDENT_KEY, accidentInfo.trackingId.equalsIgnoreCase(CNService.MOCK_TRACKING_ID));
         startActivity(intent);
     }
 
     @Override
     public void onLocationSettingsChange(ZendriveLocationSettingsResult locationSettingsResult) {
-        Log.i(TAG, "onLocationSettingsChange");
+        Log.i("toto", "onLocationSettingsChange");
         EventBus.getDefault().post(new LocationSettingsChangeEvent());
     }
 

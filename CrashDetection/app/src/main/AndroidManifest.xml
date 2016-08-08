@@ -28,12 +28,34 @@
         <activity android:name=".SettingsActivity"/>
         <activity android:name=".AccidentActivity"/>
 
+        <!-- BOOT receiver that launches CNService -->
+        <receiver android:name=".services.OnBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+
+                <!-- if OEM is HTC... -->
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- CNService will run in its own process -->
+        <service android:name="com.randmcnally.crashdetection.services.CNService"
+                 android:process=":cn_service_process"
+                 android:exported="true" >
+            <intent-filter>
+                <action android:name="com.randmcnally.CNService" />
+            </intent-filter>
+        </service>
+
+        <!-- the IntentService is controlled by CNService, thus runs in the same process -->
+        <service android:name=".services.CrashDetectionZendriveIntentService"
+                 android:process=":cn_service_process"
+                 android:exported="true" />
+
         <service android:name="com.zendrive.sdk.services.UserActivityService" />
         <service android:name="com.zendrive.sdk.services.ZendriveService" />
         <receiver android:name="com.zendrive.sdk.receiver.WakeupReceiver"
                   android:label="WakeupReceiver" />
-
-        <service android:name=".services.CrashDetectionZendriveIntentService" />
 
     </application>
 
