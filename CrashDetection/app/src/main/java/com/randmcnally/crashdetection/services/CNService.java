@@ -155,6 +155,7 @@ public class CNService extends Service {
                     if (isMockDriving) {
                         triggerMockAccident();
                     } else {
+                        triggerMockAccident = true;
                         triggerMockDrive();
                     }
                 }
@@ -179,11 +180,14 @@ public class CNService extends Service {
             Toast.makeText(service, "Error: Android version not supported.", Toast.LENGTH_LONG).show();
         } else if (result.getErrorCode() == ZendriveErrorCode.LOCATION_ACCURACY_NOT_AVAILABLE) {
             Toast.makeText(service, "Error: Location accuracy not available.", Toast.LENGTH_LONG).show();
+        } else if (result.getErrorCode() == ZendriveErrorCode.MOCK_ACCIDENT_ERROR) {
+            Toast.makeText(service, "Error: " + result.getErrorMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     @Subscribe
     public void onDriveStartEvent(DriveStartEvent event) {
+        Log.d("toto", "CNService: received onDriveStartEvent");
         if (event.trackingId.equalsIgnoreCase(MOCK_TRACKING_ID)) {
             isMockDriving = true;
             if (triggerMockAccident) {
@@ -195,6 +199,7 @@ public class CNService extends Service {
 
     @Subscribe
     public void onDriveResumeEvent(DriveResumeEvent event) {
+        Log.d("toto", "CNService: received DriveResumeEvent");
         if (event.trackingId.equalsIgnoreCase(MOCK_TRACKING_ID)) {
             isMockDriving = true;
             if (triggerMockAccident) {
@@ -206,6 +211,7 @@ public class CNService extends Service {
 
     @Subscribe
     public void onLocationSettingsChangeEvent(LocationSettingsChangeEvent event) {
+        Log.d("toto", "CNService: received LocationSettingsChangeEvent");
     }
 
     private void triggerMockDrive() {
@@ -224,6 +230,9 @@ public class CNService extends Service {
         if (!result.isSuccess()) {
             handleError(result);
         }
+
+        // TODO this may be a racing condition with triggerMockAccident
+        // which would cause MOCK_ACCIDENT_ERROR: no trip in progress
         Zendrive.stopDrive(MOCK_TRACKING_ID);
     }
 

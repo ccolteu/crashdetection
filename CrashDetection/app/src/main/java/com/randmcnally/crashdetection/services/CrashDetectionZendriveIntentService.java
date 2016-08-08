@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.randmcnally.crashdetection.AccidentActivity;
-import com.randmcnally.crashdetection.SettingsActivity;
 import com.randmcnally.crashdetection.event.DriveResumeEvent;
 import com.randmcnally.crashdetection.event.DriveStartEvent;
 import com.randmcnally.crashdetection.event.LocationSettingsChangeEvent;
