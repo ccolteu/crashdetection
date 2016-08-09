@@ -1,14 +1,18 @@
 package com.randmcnally.crashdetection;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.randmcnally.crashdetection.model.Contact;
 import com.randmcnally.crashdetection.services.CrashDetectionZendriveIntentService;
 import com.randmcnally.crashdetection.utils.AnimUtils;
 import com.randmcnally.crashdetection.widgets.Circle;
@@ -26,6 +30,7 @@ public class AccidentActivity extends AppCompatActivity {
     private CountdownHandler mCountdownHandler;
     private int mCountdownSeconds;
     private TextView mCountdownSecondsTextView;
+    private Contact mEmergencyContact;
 
     private boolean mIsMockAccident;
 
@@ -70,6 +75,10 @@ public class AccidentActivity extends AppCompatActivity {
         if (getIntent() != null) {
             mIsMockAccident = getIntent().getBooleanExtra(CrashDetectionZendriveIntentService.IS_MOCK_ACCIDENT_KEY, false);
         }
+
+        mEmergencyContact = loadEmergencyContact();
+        ((TextView)findViewById(R.id.call_contact)).setText("Call " + (!TextUtils.isEmpty(mEmergencyContact.name) ? mEmergencyContact.name :
+                "Call Emergency Contact"));
     }
 
     @Override
@@ -146,7 +155,16 @@ public class AccidentActivity extends AppCompatActivity {
             // TODO call 911
         } else if (recipient == CALL_CONTACT) {
             // TODO call emergency contact
+            String phoneNumber = mEmergencyContact.phone;
         }
     }
 
+    private Contact loadEmergencyContact() {
+        Contact contact = new Contact();
+        SharedPreferences sharedPref = this.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        contact.name = sharedPref.getString(getResources().getString(R.string.saved_emergency_contact_name), null);
+        contact.phone = sharedPref.getString(getResources().getString(R.string.saved_emergency_contact_phone), null);
+        return contact;
+    }
 }

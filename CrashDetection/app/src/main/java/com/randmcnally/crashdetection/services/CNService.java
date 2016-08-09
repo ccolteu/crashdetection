@@ -161,6 +161,8 @@ public class CNService extends Service {
 
     private void triggerMockDrive() {
         Log.d("toto", "CNService:triggerMockDrive");
+        Zendrive.stopDrive(MOCK_TRACKING_ID);
+        isMockDriving = false;
         ZendriveOperationResult result = Zendrive.startDrive(MOCK_TRACKING_ID);
         Log.i(TAG, "start mock drive success ? " + result.isSuccess());
         if (!result.isSuccess()) {
