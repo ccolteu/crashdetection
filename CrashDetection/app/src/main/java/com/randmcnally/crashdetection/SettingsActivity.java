@@ -108,6 +108,13 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
                 if (b) {
                     if (mCNServiceApi != null) {
                         mCNServiceApi.startZendrive();
+                    } else {
+                        mCNServiceApi = new CNServiceApi();
+                        boolean success = mCNServiceApi.init(activity, mCNServiceListener);
+                        if (!success) {
+                            // could not bind to the CN remote service
+                            Log.e(TAG, "ERROR: cannot bind to remote CNService");
+                        }
                     }
                 } else {
                     if (mCNServiceApi != null) {
@@ -127,11 +134,13 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
     @Override
     protected void onResume() {
         super.onResume();
-        mCNServiceApi = new CNServiceApi();
-        boolean success = mCNServiceApi.init(this, mCNServiceListener);
-        if (!success) {
-            // could not bind to the CN remote service
-            Log.e(TAG, "ERROR: cannot bind to remote CNService");
+        if (loadCrashNotificationValue()) {
+            mCNServiceApi = new CNServiceApi();
+            boolean success = mCNServiceApi.init(this, mCNServiceListener);
+            if (!success) {
+                // could not bind to the CN remote service
+                Log.e(TAG, "ERROR: cannot bind to remote CNService");
+            }
         }
     }
 

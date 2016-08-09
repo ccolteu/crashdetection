@@ -1,14 +1,20 @@
 package com.randmcnally.crashdetection.services;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Messenger;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.randmcnally.crashdetection.R;
+import com.randmcnally.crashdetection.SettingsActivity;
 import com.randmcnally.crashdetection.event.DriveResumeEvent;
 import com.randmcnally.crashdetection.event.DriveStartEvent;
 import com.randmcnally.crashdetection.event.LocationSettingsChangeEvent;
@@ -47,19 +53,31 @@ public class CNService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.e("toto", "CNService:onCreate");
         service = this;
         EventBus.getDefault().register(this);
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Log.e("toto", "CNService:onStartCommand");
+        startZendrive(null);
+        startForeground(101, buildForegroundNotification());
+        return START_STICKY;
+    }
+
+    @Override
     public void onDestroy() {
-        stopZendrive();
+        Log.e("toto", "CNService:onDestroy");
+        stopZendrive(null);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.e("toto", "CNService:onBind");
         return myMessenger.getBinder();
     }
 
@@ -75,77 +93,13 @@ public class CNService extends Service {
 
                 Log.d("toto", "CNService: received start_zendrive");
 
-                final Messenger replyMessenger = msg.replyTo;
-
-                ZendriveDriverAttributes driverAttributes = new ZendriveDriverAttributes();
-                driverAttributes.setFirstName("Homer");
-                driverAttributes.setLastName("Simpson");
-                driverAttributes.setEmail("homer@springfield.com");
-                driverAttributes.setPhoneNumber("14155557334");
-
-                ZendriveConfiguration zendriveConfiguration = new ZendriveConfiguration(
-                        SDK_KEY,
-                        DRIVER_ID,
-                        ZendriveDriveDetectionMode.AUTO_ON,
-                        ZendriveAccidentDetectionMode.ENABLED);
-                zendriveConfiguration.setDriverAttributes(driverAttributes);
-
-                Zendrive.setup(
-                        service.getApplicationContext(),
-                        zendriveConfiguration,
-                        CrashDetectionZendriveIntentService.class,
-                        new ZendriveOperationCallback() {
-                            @Override
-                            public void onCompletion(ZendriveOperationResult result) {
-                                Log.i(TAG, "Zendrive setup success ? " + result.isSuccess());
-
-                                setupComplete = result.isSuccess();
-
-                                // respond to client
-                                try {
-                                    android.os.Message responseMessage = android.os.Message.obtain();
-                                    Bundle responseBundle = new Bundle();
-                                    responseBundle.putBoolean("zendrive_start_success", result.isSuccess());
-                                    responseMessage.setData(responseBundle);
-                                    replyMessenger.send(responseMessage);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                if (!result.isSuccess()) {
-                                    handleError(result);
-                                }
-                            }
-                        }
-                );
+                startZendrive(msg.replyTo);
 
             } else if (command.equalsIgnoreCase("stop_zendrive")) {
 
                 Log.d("toto", "CNService: received stop_zendrive");
 
-                final Messenger replyMessenger = msg.replyTo;
-
-                Zendrive.teardown(new ZendriveOperationCallback() {
-                    @Override
-                    public void onCompletion(ZendriveOperationResult result) {
-                        Log.i(TAG, "Zendrive setup success ? " + result.isSuccess());
-
-                        // respond to client
-                        try {
-                            android.os.Message responseMessage = android.os.Message.obtain();
-                            Bundle responseBundle = new Bundle();
-                            responseBundle.putBoolean("zendrive_stop_success", result.isSuccess());
-                            responseMessage.setData(responseBundle);
-                            replyMessenger.send(responseMessage);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        if (!result.isSuccess()) {
-                            handleError(result);
-                        }
-                    }
-                });
+                stopZendrive(msg.replyTo);
 
             } else if (command.equalsIgnoreCase("mock_accident")) {
 
@@ -236,12 +190,110 @@ public class CNService extends Service {
         Zendrive.stopDrive(MOCK_TRACKING_ID);
     }
 
-    private void stopZendrive() {
+    private void startZendrive(final Messenger replyMessenger) {
+        ZendriveDriverAttributes driverAttributes = new ZendriveDriverAttributes();
+        driverAttributes.setFirstName("Homer");
+        driverAttributes.setLastName("Simpson");
+        driverAttributes.setEmail("homer@springfield.com");
+        driverAttributes.setPhoneNumber("14155557334");
+
+        ZendriveConfiguration zendriveConfiguration = new ZendriveConfiguration(
+                SDK_KEY,
+                DRIVER_ID,
+                ZendriveDriveDetectionMode.AUTO_ON,
+                ZendriveAccidentDetectionMode.ENABLED);
+        zendriveConfiguration.setDriverAttributes(driverAttributes);
+
+        Zendrive.setup(
+                service.getApplicationContext(),
+                zendriveConfiguration,
+                CrashDetectionZendriveIntentService.class,
+                new ZendriveOperationCallback() {
+                    @Override
+                    public void onCompletion(ZendriveOperationResult result) {
+                        Log.i(TAG, "Zendrive setup success ? " + result.isSuccess());
+
+                        setupComplete = result.isSuccess();
+
+                        if (replyMessenger != null) {
+                            // respond to client
+                            try {
+                                android.os.Message responseMessage = android.os.Message.obtain();
+                                Bundle responseBundle = new Bundle();
+                                responseBundle.putBoolean("zendrive_start_success", result.isSuccess());
+                                responseMessage.setData(responseBundle);
+                                replyMessenger.send(responseMessage);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        if (!result.isSuccess()) {
+                            handleError(result);
+                        }
+                    }
+                }
+        );
+    }
+
+    private void stopZendrive(final Messenger replyMessenger) {
         Zendrive.teardown(new ZendriveOperationCallback() {
             @Override
             public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
 
             }
         });
+
+        Zendrive.teardown(new ZendriveOperationCallback() {
+            @Override
+            public void onCompletion(ZendriveOperationResult result) {
+                Log.i(TAG, "Zendrive setup success ? " + result.isSuccess());
+
+                // respond to client
+                try {
+                    android.os.Message responseMessage = android.os.Message.obtain();
+                    Bundle responseBundle = new Bundle();
+                    responseBundle.putBoolean("zendrive_stop_success", result.isSuccess());
+                    responseMessage.setData(responseBundle);
+                    replyMessenger.send(responseMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (!result.isSuccess()) {
+                    handleError(result);
+                }
+            }
+        });
+
+        stopForeground(true);
+        service.stopSelf();
     }
+
+    private Notification buildForegroundNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+        builder.setOngoing(true);
+
+        builder.setContentTitle("Crash Notification enabled")
+                .setContentText("Automatically call a contact if a crash is detected")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                .setTicker("crash notification enabled");
+
+        Intent resultIntent = new Intent(this, SettingsActivity.class);
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        builder.setContentIntent(resultPendingIntent);
+
+        Notification notification = builder.build();
+
+        return notification;
+    }
+
 }

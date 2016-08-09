@@ -12,6 +12,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.randmcnally.crashdetection.services.CNService;
 import com.randmcnally.crashdetection.utils.Utils;
 
 public class CNServiceApi {
@@ -36,6 +37,12 @@ public class CNServiceApi {
     public boolean init(Context ctx, CNServiceListener listener) {
         mContext = ctx;
         mCNServiceListener = listener;
+
+        // If you only BIND_AUTO_CREATE the service will be killed when killing
+        // the bound app even if the service is set to run in the foreground
+        // To avoid it being killed it needs to be started manually
+        ctx.startService(new Intent(ctx, CNService.class));
+
         return bindToRemoteService();
     }
 

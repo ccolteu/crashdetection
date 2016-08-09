@@ -13,6 +13,9 @@
     <!-- This permission is needed so that Zendrive can track drives completely. This prevents Android from shutting down phone CPU in the middle of a drive. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- for CNService -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application android:allowBackup="true"
                  android:icon="@mipmap/ic_launcher"
                  android:label="@string/app_name"
@@ -29,7 +32,7 @@
         <activity android:name=".AccidentActivity"/>
 
         <!-- BOOT receiver that launches CNService -->
-        <receiver android:name=".services.OnBootReceiver">
+        <receiver android:name=".services.OnBootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
 
@@ -40,7 +43,8 @@
 
         <!-- CNService will run in its own process -->
         <service android:name="com.randmcnally.crashdetection.services.CNService"
-                 android:process=":cn_service_process"
+                 android:process="com.randmcnally.cnservice.process"
+                 android:enabled="true"
                  android:exported="true" >
             <intent-filter>
                 <action android:name="com.randmcnally.CNService" />
@@ -49,7 +53,7 @@
 
         <!-- the IntentService is controlled by CNService, thus runs in the same process -->
         <service android:name=".services.CrashDetectionZendriveIntentService"
-                 android:process=":cn_service_process"
+                 android:process="com.randmcnally.cnservice.process"
                  android:exported="true" />
 
         <service android:name="com.zendrive.sdk.services.UserActivityService" />
