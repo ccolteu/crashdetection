@@ -88,23 +88,14 @@ public class CNService extends Service {
             // handle message from client
             Bundle data = msg.getData();
             String command = data.getString("command");
-
             if (command.equalsIgnoreCase("start_zendrive")) {
-
                 Log.d("toto", "CNService: received start_zendrive");
-
                 startZendrive(msg.replyTo);
-
             } else if (command.equalsIgnoreCase("stop_zendrive")) {
-
                 Log.d("toto", "CNService: received stop_zendrive");
-
                 stopZendrive(msg.replyTo);
-
             } else if (command.equalsIgnoreCase("mock_accident")) {
-
                 Log.d("toto", "CNService: received mock_accident");
-
                 if (setupComplete) {
                     if (isMockDriving) {
                         triggerMockAccident();
@@ -171,7 +162,7 @@ public class CNService extends Service {
     private void triggerMockDrive() {
         Log.d("toto", "CNService:triggerMockDrive");
         ZendriveOperationResult result = Zendrive.startDrive(MOCK_TRACKING_ID);
-        Log.i(TAG, "start mock success ? " + result.isSuccess());
+        Log.i(TAG, "start mock drive success ? " + result.isSuccess());
         if (!result.isSuccess()) {
             handleError(result);
         }
@@ -185,9 +176,16 @@ public class CNService extends Service {
             handleError(result);
         }
 
+        isMockDriving = false;
+
         // TODO this may be a racing condition with triggerMockAccident
         // which would cause MOCK_ACCIDENT_ERROR: no trip in progress
-        Zendrive.stopDrive(MOCK_TRACKING_ID);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Zendrive.stopDrive(MOCK_TRACKING_ID);
+            }
+        }, 500);
     }
 
     private void startZendrive(final Messenger replyMessenger) {

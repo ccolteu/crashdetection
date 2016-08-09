@@ -1,12 +1,18 @@
 package com.randmcnally.crashdetection;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -14,10 +20,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.randmcnally.crashdetection.apis.CNServiceApi;
+import com.randmcnally.crashdetection.model.Contact;
 
 public class SettingsActivity extends AppCompatActivity implements PriorityDialogFragment.PriorityDialogListener {
 
     private static final String TAG = "SettingsActivity";
+
+    static final int PICK_CONTACT = 1;
 
     private SettingsActivity activity;
     private TextView mPairedPhoneSelectionTextView, mEmergencyContactSelectionTextView, mAccidentCallSelectionTextView;
@@ -60,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
         mPairedPhoneSelectionTextView = (TextView)findViewById(R.id.paired_phone_selection);
         mEmergencyContactSelectionTextView = (TextView)findViewById(R.id.emergency_contact_selection);
         mAccidentCallSelectionTextView = (TextView)findViewById(R.id.accident_call_selection);
-        mCrashNotificationSwitch = (SwitchCompat) findViewById(R.id.crash_notification_selection);
+        mCrashNotificationSwitch = (SwitchCompat)findViewById(R.id.crash_notification_selection);
 
         findViewById(R.id.crash_notification).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +88,15 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
         findViewById(R.id.emergency_contact).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO launch contact search page
+                // TODO use custom contact picker
+                try {
+                    Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
+                    // Show user only contacts w/ phone numbers
+                    pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+                    startActivityForResult(pickContactIntent, PICK_CONTACT);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -120,15 +137,17 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
                     if (mCNServiceApi != null) {
                         mCNServiceApi.stopZendrive();
                     }
+                    mCNServiceApi = null;
                 }
             }
         });
 
         // initial values
         mCrashNotificationSwitch.setChecked(loadCrashNotificationValue());
-        mAccidentCallSelectionTextView.setText(loadPriorityValue()?getResources().getString(R.string
-                .emergency_contact_first_letters_caps):getResources().getString(R.string.nine_one_one));
-
+        mAccidentCallSelectionTextView.setText(loadPriorityValue() ? getResources().getString(R.string
+                .emergency_contact_first_letters_caps) : getResources().getString(R.string.nine_one_one));
+        Contact emergencyContact = loadEmergencyContact();
+        mEmergencyContactSelectionTextView.setText(!TextUtils.isEmpty(emergencyContact.name) ? emergencyContact.name : "");
     }
 
     @Override
@@ -149,6 +168,39 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
         super.onPause();
         if (mCNServiceApi != null) {
             mCNServiceApi.terminate();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case (PICK_CONTACT):
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri contactData = data.getData();
+                    Contact contact = new Contact();
+                    String[] projection = new String[]{
+                            ContactsContract.CommonDataKinds.Phone.NUMBER,
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                    };
+                    Cursor c = getContentResolver().query(contactData, projection, null, null, null);
+                    if (c != null && c.moveToFirst()) {
+                        contact.phone = c.getString(0);
+                        contact.name = c.getString(1);
+                        c.close();
+                    }
+                    if (contact.phone == null) {
+                        contact.phone = "Unknown";
+                    }
+                    if (contact.name == null) {
+                        contact.name = "Unknown";
+                    }
+                    Toast.makeText(this, "Emergency contact: " + contact.name + " - " + contact.phone, Toast.LENGTH_LONG).show();
+                    saveEmergencyContact(contact);
+                    mEmergencyContactSelectionTextView.setText(contact.name);
+                }
+                break;
         }
     }
 
@@ -183,6 +235,7 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
     }
 
     public static final String PRIORITY_CONTACT_KEY = SettingsActivity.class.getSimpleName() + ".PRIORITY_CONTACT_KEY";
+
     private void showAccidentCallChoiceDialog() {
         FragmentManager fm = getSupportFragmentManager();
         PriorityDialogFragment dialogFragment = new PriorityDialogFragment();
@@ -195,7 +248,25 @@ public class SettingsActivity extends AppCompatActivity implements PriorityDialo
     @Override
     public void onContactSelected(AlertDialog dialog, boolean isContact) {
         savePriorityValue(isContact);
-        mAccidentCallSelectionTextView.setText(loadPriorityValue()?getResources().getString(R.string
-                .emergency_contact_first_letters_caps):getResources().getString(R.string.nine_one_one));
+        mAccidentCallSelectionTextView.setText(loadPriorityValue() ? getResources().getString(R.string
+                .emergency_contact_first_letters_caps) : getResources().getString(R.string.nine_one_one));
+    }
+
+    private void saveEmergencyContact(Contact contact) {
+        SharedPreferences sharedPref = activity.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getString(R.string.saved_emergency_contact_name), contact.name);
+        editor.putString(getString(R.string.saved_emergency_contact_phone), contact.phone);
+        editor.commit();
+    }
+
+    private Contact loadEmergencyContact() {
+        Contact contact = new Contact();
+        SharedPreferences sharedPref = activity.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        contact.name = sharedPref.getString(getResources().getString(R.string.saved_emergency_contact_name), null);
+        contact.phone = sharedPref.getString(getResources().getString(R.string.saved_emergency_contact_phone), null);
+        return contact;
     }
 }

@@ -5,6 +5,8 @@
     <string name="saved_liability_dont_show">LIABILITY_DONT_SHOW</string>
     <string name="saved_crash_notification_enabled">CRASH_NOTIFICATION_ENABLED</string>
     <string name="saved_priority_is_contact">PRIORITY_IS_CONTACT</string>
+    <string name="saved_emergency_contact_name">EMERGENCY_CONTACT_NAME</string>
+    <string name="saved_emergency_contact_phone">EMERGENCY_CONTACT_PHONE</string>
 
     <string name="select_priority">Select Priority</string>
     <string name="emergency_contact_first_letters_caps">Emergency Contact</string>

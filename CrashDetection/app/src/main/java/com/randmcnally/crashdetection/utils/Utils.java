@@ -5,7 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.provider.ContactsContract;
+import android.util.Log;
 
+import com.randmcnally.crashdetection.model.Contact;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
@@ -33,5 +39,50 @@ public class Utils {
         explicitIntent.setComponent(component);
 
         return explicitIntent;
+    }
+
+    public static Contact getGoogleDeviceContact(Context context, String name) {
+        Contact contact = new Contact();
+        String selection = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " like'%" + name + "%'";
+        String[] projection = new String[]{
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+        };
+        Cursor c = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                projection, selection, null, null);
+        if (c != null && c.moveToFirst()) {
+            contact.phone = c.getString(0);
+            contact.name = c.getString(1);
+            c.close();
+        }
+        if (contact.phone == null) {
+            contact.phone = "Unknown";
+        }
+        if (contact.name == null) {
+            contact.name = "Unknown";
+        }
+        Log.d("toto", contact.phone + " | " + contact.name);
+        return contact;
+    }
+
+    public static ArrayList<Contact> getGoogleDeviceContacts(Context context) {
+        ArrayList<Contact> ret = null;
+        String[] projection = new String[]{
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+        };
+        Cursor c = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                projection, null, null, null);
+        if (c != null) {
+            ret = new ArrayList<>();
+            while(c.moveToNext()) {
+                Contact contact = new Contact();
+                contact.phone = c.getString(0);
+                contact.name = c.getString(1);
+                ret.add(contact);
+            }
+            c.close();
+        }
+        return ret;
     }
 }

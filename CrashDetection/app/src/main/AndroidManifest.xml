@@ -10,11 +10,15 @@
     <!-- This permission is needed for automatic drive detection by Zendrive. -->
     <uses-permission android:name= "com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
-    <!-- This permission is needed so that Zendrive can track drives completely. This prevents Android from shutting down phone CPU in the middle of a drive. -->
+    <!-- This permission is needed so that Zendrive can track drives completely.
+    This prevents Android from shutting down phone CPU in the middle of a drive. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- for CNService -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- getting emergency contact phone number -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application android:allowBackup="true"
                  android:icon="@mipmap/ic_launcher"
